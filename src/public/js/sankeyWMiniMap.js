@@ -62,7 +62,7 @@ function Sankey(args){
 	var gMaxExc;
 
 	var minHeightForText = 50;
-	var textTruncForNode = 8;
+	var textTruncForNode = 6;
 
 	data["links"].forEach(function(link){
 		if(link["sourceLabel"] == 'LM0' || parseInt(link["sourceLabel"]) == 0){
@@ -537,10 +537,13 @@ function Sankey(args){
 				return 5;
 			})
 			// .attr('y', '10px')
-			.attr('y', "-10")
+			.attr('y', -1 * sankey.nodeWidth() / 2 + "px")
 			.style('opacity', 0)
 			.style("font-family", "sans-serif")
-	    	.style("font-size", "20px")
+			.style("font-size", "25px")
+	    	.style("fill", function(d){
+	    		return getTextColor(setNodeColor(d));
+	    	})
 	    	.text(function (d) {
 	    		if(d.name != "intermediate"){
 	    			// return d.name//; + "\n" + format(d.value);
@@ -1828,16 +1831,16 @@ function Sankey(args){
 				// return color(node["specialID"]);
 			}
 			else if(nodeColorOption == 1){
-		        return incColorScale(node.inclusive);
+		        return incColorScale(node.inclusive).hex();
 			}
 			else if(nodeColorOption == 2){
-		        return excColorScale(node.exclusive);
+		        return excColorScale(node.exclusive).hex();
 			}
 			else if(nodeColorOption == 3){
-		        return nRangeColorScale(node.nRange);
+		        return nRangeColorScale(node.nRange).hex();
 			}
 			else if(nodeColorOption == 4){
-				return diffColorScale(node.diff || 0);
+				return diffColorScale(node.diff || 0).hex();
 			}
 	}
 
@@ -1848,7 +1851,7 @@ function Sankey(args){
 	    container.append('text').attr({ x: -99999, y: -99999 }).text(text);
 	    var size = container.node().getBBox();
 	    container.remove();
-	    return { width: size.width + 50, height: size.height };
+	    return { width: size.width + 100, height: size.height };
 	}
 
 
@@ -1983,5 +1986,24 @@ function Sankey(args){
         }
     }
 	//////////////////////////////////////////////////////////////////////////
+
+	function getTextColor(hex){
+	    var hex = hex.replace('#','');
+	    var r = parseInt(hex.substring(0,2), 16);
+	    var g = parseInt(hex.substring(2,4), 16);
+	    var b = parseInt(hex.substring(4,6), 16);
+
+	    var rgb = [r,b,g];
+
+	    // http://www.w3.org/TR/AERT#color-contrast
+		var o = Math.round(((parseInt(rgb[0]) * 299) +
+		                  (parseInt(rgb[1]) * 587) +
+		                  (parseInt(rgb[2]) * 114)) / 1000);
+		var fore = (o > 125) ? 'black' : 'white';
+		if (nodeColorOption == 0)
+			return "black";
+		else
+	    	return fore;
+	}
 
 }
