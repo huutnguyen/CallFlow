@@ -334,6 +334,20 @@
 			    });
 			 tButton.appendTo(temp);
 
+		    var $nodeSizeLabel = $('<label>').text('Set NodeSize;');
+		    $('#control').append($nodeSizeLabel);
+		    temp = document.createElement('div');
+		    temp.setAttribute('id', 'setNodeSize');
+		    $('#control').append(temp);
+		    $('<p><label for="maxVal"> Max Value: <input type="text" id="nodeSize" size="12" name="maxVal" value="" placeholder="Input Value" /></label></p>').appendTo(temp);
+
+		    var tButton=$('<input/>').attr({
+			type: "button",
+			id: "setNodeSizeBtr",
+			value: 'Set node size'
+		    });
+		    tButton.appendTo(temp);
+		    
 		}
 
 		function donewithlayout(){
@@ -427,6 +441,7 @@
 		var showLabelBool = false;
 
 		var dataSetInfo;
+var maxNodeSize = 0.9*window.innerHeight;
 
 		function startVis(){
 
@@ -519,7 +534,6 @@
         				currentMaxID = Math.max(currentMaxID, tempObj["sankeyID"]);
 	            	});
 
-    				globalNodes = myNodes;
 					globalEdges = edges;
 					// console.log(myNodes);
 					myNodes.sort(function(a,b){
@@ -541,8 +555,9 @@
 	            	connectionList = data["connInfo"];
 
 	            	// console.log(myNodes);
-
-					// console.log(myNodes);
+			globalNodes = myNodes;
+			globalHistogramData = histogramData;
+			// console.log(myNodes);
 					$('#procedure_view').empty();
 					sankeyVis = new Sankey({
 						ID: "#procedure_view",
@@ -555,7 +570,8 @@
 						toolTipData : {"edgeList" : edgeList, "nodeList": nodeList, "connInfo" : connectionList},
 						histogramData : histogramData,
 						// spinner: spinner,
-						clickCallBack: nodeClickCallBack
+					    clickCallBack: nodeClickCallBack,
+					    maxNodeSize: maxNodeSize
 					})	
 
 					// sankColor = sankeyVis.colorScale;				
@@ -874,7 +890,9 @@
 						margin: {top: 10, right: 10, bottom: 10, left: 10},
 						data: {"nodes": myNodes, "links": edges},
 						colorScale : sankColor,
-						clickCallBack: nodeClickCallBack
+					    clickCallBack: nodeClickCallBack,
+					    maxNodeSize: maxNodeSize
+					    
 					})					
 
 					if(showLabelBool == true){
@@ -1307,6 +1325,30 @@
 				}				
 			})
 
+		    $('#setNodeSizeBtr').on('click', function(){
+			var val = parseInt($('#nodeSize').val());
+			console.log(val);
+			maxNodeSize = val;					   
+			$('#procedure_view').empty();
+			console.log(globalNodes);
+			sankeyVis = new Sankey({
+			    ID: "#procedure_view",
+			    width: $("#procedure_view").width(),
+			    height: $("#procedure_view").height(),
+			    // width: width,
+			    // height: height,
+			    margin: {top: 10, right: 10, bottom: 10, left: 10},
+			    data: {"nodes": globalNodes, "links": edges},
+			    colorScale : sankColor,
+			    clickCallBack: nodeClickCallBack,
+			    maxNodeSize: maxNodeSize,
+			    toolTipData : {"edgeList" : edgeList, "nodeList": nodeList, "connInfo" : connectionList},
+			    histogramData : globalHistogramData,
+			    isUpdateSize: true
+					
+			})					
+
+		    })
 			$("#setRangeBtr").on('click', function(){
 				console.log('button is click');
 				var minVal;
