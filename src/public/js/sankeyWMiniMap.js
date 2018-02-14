@@ -10,6 +10,7 @@
  * https://github.com/LLNL/CallFlow
  * Please also read the LICENSE file for the MIT License notice.
  ******************************************************************************/
+var currSankeySize = 0;
 
 function Sankey(args){
     String.prototype.trunc = String.prototype.trunc ||
@@ -64,7 +65,7 @@ function Sankey(args){
 
     var minHeightForText = 50;
     var textTruncForNode = 6;
-    var currSankeySize = 0;
+    
     data["links"].forEach(function(link){
 	if(link["sourceLabel"] == 'LM0' || parseInt(link["sourceLabel"]) == 0){
 	    rootRunTime += link["value"];
@@ -84,6 +85,7 @@ function Sankey(args){
 	var inComing = 0;
 	var nodeLabel = node["specialID"];
 	var tempOBJ = node;
+	console.log(tempOBJ);
 	secondGraphNodes.push(tempOBJ);
 
 	data["links"].forEach(function(edge){
@@ -147,9 +149,8 @@ function Sankey(args){
     var graph;
     var graph2;
 
-    console.log(height, sankeySize);
     var treeHeight = height < sankeySize ? height: sankeySize;
-
+    
     var minimapXScale = d3.scale.ordinal().domain(histogramData["globalXvals"]).rangeRoundBands([0, nodeWidth], 0.05);
     var minimapYScale = d3.scale.linear().domain([0, histogramData["maxFreq"]]).range([ySpacing - 5, 5]);
 
@@ -160,9 +161,7 @@ function Sankey(args){
 
     function zoomed(){
 	svgBase.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-
 	svgBase2.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-
     }
 
     //////////////////////////////Top tree//////////////////////////////////////
@@ -258,17 +257,18 @@ function Sankey(args){
 	sankey = d3sankey()
 	    .nodeWidth(nodeWidth)
 	    .nodePadding(ySpacing)
-	// .size([width * 0.9, treeHeight - ySpacing])
 	    .size([width * 1.05, treeHeight - ySpacing])
 	    .xSpacing(xSpacing)
 	    .setReferenceValue(referenceValue);
 
 	var path = sankey.link();
 
-	// load the data
 	var graph_zero = {"nodes" : data["nodes"], "links" : data["links"]};
-	if(removeIntermediate && sankeySize == currSankeySize){
+
+	console.log(currSankeySize)
+	if(removeIntermediate && (sankeySize == currSankeySize || currSankeySize == 0)){
 	    graph = rebuild(graph_zero.nodes, graph_zero.links);
+	    currSankeySize = treeHeight;
 	}
 	else{
 	    graph = graph_zero;
@@ -354,8 +354,8 @@ function Sankey(args){
 
 	links.selectAll(".link")
 	    .data(graph.links)
-	// .transition()
-	// .duration(transitionDuration)
+	 .transition()
+	 .duration(transitionDuration)
 	    .style('fill-opacity', 0.0)
 	    .attr('d', function(d){
 		var Tx0 = d.source.x + d.source.dx,
@@ -408,7 +408,6 @@ function Sankey(args){
 	    .attr("transform", function (d) {
 		return "translate(" + d.x + "," + d.y + ")";
 	    })
-
 	
 	// add the rectangles for the nodes
 	var rect = node.append("rect")
@@ -418,7 +417,6 @@ function Sankey(args){
 	    })
 	    .attr("width", sankey.nodeWidth())
 	    .style("fill", function (d) {
-
 		var temp = {"name" : d.name.replace(/ .*/, ""),
 			    "color" : color(d.name.replace(/ .*/, ""))}
 		nodeList.push(temp);
@@ -428,7 +426,6 @@ function Sankey(args){
 		else{
 		    return d.color = setNodeColor(d);
 		}
-
 	    })
 	    .style("fill-opacity", function(d){
 		if(d.name == "intermediate"){
@@ -463,7 +460,6 @@ function Sankey(args){
 		    toolTipTexts(d,res, rootRunTime1)
 		    d3.select(this).style("stroke-width", "2");
 		    // fadeUnConnected(d);
-
 		    // svg.selectAll(".link").style('fill-opacity', 0.0)
 		    // svg.selectAll('.node').style('opacity', '0.0')
 		}
@@ -483,8 +479,6 @@ function Sankey(args){
 			return 0;
 		    })
 		toolTipText.html("");
-
-
 		toolTipG.selectAll('*').remove();
 	    })
 	    .on('click', function(d){
@@ -493,7 +487,6 @@ function Sankey(args){
 		    var fromProcToProc = ret["fromProcToProc"];
 		    var nameToIDMap = ret["nameToIDMap"];
 		    var res = {"node" : d, "fromProcToProc" : fromProcToProc, "nameToIDMap" : nameToIDMap, "rootRunTime" : rootRunTime};
-		    // clickCallBack(d);
 		    clickCallBack(res);
 		}
 	    })
@@ -654,7 +647,6 @@ function Sankey(args){
 	    	    }
 	    	    else{
 	    		var textSize = calcTextSize(d.name)["width"];
-
 	    		if(textSize < d.dy){
 	    		    return d.name;
 	    		}
