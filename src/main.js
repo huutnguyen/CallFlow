@@ -152,6 +152,8 @@ var staticGraph; //this is the static graph we can load upond page refresh;
 var staticFunctionList;
 var nodeIDKeep = []; //a array of node id got when read in the metric file
 
+var nodeTypeInfo;
+
 nodeMetricReader.on('line', function(line){
 	var myOBJ = JSON.parse(line);
 	if(parseInt(myOBJ.id) == 1){
@@ -219,6 +221,8 @@ function sankeySplitNodeCallBack(data){
 	edgeListDeepCopy = JSON.parse(JSON.stringify( sankeyData["edgeList"] ));
 
 	staticGraph = {"nodes" : nodesDeepCopy, "edges" : edgesDeepCopy, "nodeList" : nodeListDeepCopy, "edgeList" : edgeListDeepCopy}
+
+	nodeTypeInfo = data["nodeTypeInfo"];
 
 	server.listen(port, host, function(){
 		console.log("Sever started, listening", host, port);

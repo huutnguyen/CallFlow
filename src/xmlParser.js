@@ -912,7 +912,8 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         "nodePaths" : nodePaths,
         "connectionInfo" : connectionInfo,
         "procedureTable" : procedureTable,
-        "functionList" : functionList
+        "functionList" : functionList,
+		"nodeTypeInfo" : nodeTypeInfo
 	};
 
 	callBack(returnData);
