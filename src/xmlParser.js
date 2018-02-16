@@ -24,7 +24,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         // console.log('no config file found at', configFileName);
         config = {};
     }
-    
+
     console.log(config);
 
     var xmlFile = fileName;
@@ -68,7 +68,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
     //for example: miranda lm is 8, splitting into drivers, io, ect
     //so we have splitLoadModuleFileID[8]["Driver"] = {fileList: [], index: SomeNumb}
 
-    var configNameToID = {}; //from the config file, map the name of the loadmodule to the 
+    var configNameToID = {}; //from the config file, map the name of the loadmodule to the
 
     var configLMSplitInfo = {}; //access by load module id
 
@@ -204,7 +204,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
     }
 
     var xmlExperimentTables = obj.root().child(1).child(0);
-    parseProfileTable(xmlExperimentTables);    
+    parseProfileTable(xmlExperimentTables);
 
     var cct = obj.root().child(1).child(1);
     // console.log(cct.name());
@@ -231,7 +231,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
     var currentFileID;
     var currentLoadModID;
     var currentprocedureID;
-    var counter = 0;   
+    var counter = 0;
     var currentCallSiteID;
 
     var callSiteMetric = {};
@@ -254,6 +254,8 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
     var internalNodeList = {};
 
+	var nodeTypeInfo = {};
+
     parseNodes(cct, null, "false", 0);
 
     function parseSecCallPathProfileData(xmlNode, level){
@@ -275,7 +277,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
         var tempID = "LM" + 0;
 
-        root["specialID"] = tempID;  
+        root["specialID"] = tempID;
 
         ///////////Sankey call path of LM////////////////////
         if(nodeArray[level] == null){
@@ -292,12 +294,12 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
             "myID" : sanKeyIDLM,
             "level" : level,
             "type" : "LM",
-            "specialID" : tempID, 
+            "specialID" : tempID,
             "uniqueID" : [],
         };
         sanKeyMetricDataLM[level][tempID] = [];
         // sanKeyMetricData[level]["root"].push(root.nodeID);
-        sanKeyMetricDataLM[level][tempID].push({"nodeID": root.nodeID, "parentNodeID" : null, "nodeLevel" : level, "parentSpecialID" : null});   
+        sanKeyMetricDataLM[level][tempID].push({"nodeID": root.nodeID, "parentNodeID" : null, "nodeLevel" : level, "parentSpecialID" : null});
 
         nodeArray[level][tempID]["uniqueID"].push(root.nodeID);
 
@@ -305,7 +307,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
         sanKeyIDLM += 1;
 
-        /////////////End/////////////////////////////////////        
+        /////////////End/////////////////////////////////////
 
         entryExitData[tempID] = {
             "name" : "root",
@@ -314,13 +316,15 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
             "enter" : [] //array to store procs that was call from different lm
         }
 
+		nodeTypeInfo[root.nodeID] = {"Type": "root", "ParentLM" : "0", "LM" : tempID};
+
         var nextLevel = level + 1;
         internalNodeList[root.nodeID] = root;
         xmlNode.childNodes().forEach(function(child){
             if(child.name() != "M")
                 parseNodes(child, root, "false", nextLevel);
         })
-    }  
+    }
 
     function parsePF(xmlNode, parentNode, Cid, level){
         var newNode = createNewNodeFromXML(xmlNode, "PF", level, parentNode);
@@ -331,7 +335,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         var tempID = getSpecialIDNameTypeRes["specialID"];// = "LM" + newNode.loadModuleID;
         var type = getSpecialIDNameTypeRes["type"];
         var name = getSpecialIDNameTypeRes["name"];
-        newNode["specialID"] = tempID;  
+        newNode["specialID"] = tempID;
         newNode["specialIDName"] = name;
         internalNodeList[newNode.nodeID] = newNode;
 
@@ -386,7 +390,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         var type = getSpecialIDNameTypeRes["type"];
         var name = getSpecialIDNameTypeRes["name"];
 
-        newNode["specialID"] = tempID;    
+        newNode["specialID"] = tempID;
         newNode["specialIDName"] = name;
         internalNodeList[newNode.nodeID] = newNode;
 
@@ -395,7 +399,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
         createNewTreeNode(level, tempID, name, type, newNode);
 
-        addInfo(level, tempID, newNode, parentNode);         
+        addInfo(level, tempID, newNode, parentNode);
         // //////////////////End////////////////////////////////
 
 
@@ -416,9 +420,9 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         var type = getSpecialIDNameTypeRes["type"];
         var name = getSpecialIDNameTypeRes["name"];
 
-        newNode["specialID"] = tempID; 
-        newNode["specialIDName"] = name; 
-        internalNodeList[newNode.nodeID] = newNode;     
+        newNode["specialID"] = tempID;
+        newNode["specialIDName"] = name;
+        internalNodeList[newNode.nodeID] = newNode;
 
         // newNode.loadModuleID = currentLoadModID;
 
@@ -428,7 +432,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
         createNewTreeNode(level, tempID, name, type, newNode);
 
-        addInfo(level, tempID, newNode, parentNode);            
+        addInfo(level, tempID, newNode, parentNode);
         //////////////////End////////////////////////////////
 
 
@@ -449,7 +453,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         var type = getSpecialIDNameTypeRes["type"];
         var name = getSpecialIDNameTypeRes["name"];
 
-        newNode["specialID"] = tempID;    
+        newNode["specialID"] = tempID;
         newNode["specialIDName"] = name;
         internalNodeList[newNode.nodeID] = newNode;
 
@@ -458,7 +462,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
         createNewTreeNode(level, tempID, name, type, newNode);
 
-        addInfo(level, tempID, newNode, parentNode);       
+        addInfo(level, tempID, newNode, parentNode);
         //////////////////End////////////////////////////////
 
 		addEntryExitData(tempID, newNode, parentNode);
@@ -475,7 +479,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         var xmlNodeName = xmlNode.name();
         // console.log(xmlNodeName);
 
-        if(xmlNodeName == "SecCallPathProfileData" || 
+        if(xmlNodeName == "SecCallPathProfileData" ||
             xmlNodeName == "PF" ||
             xmlNodeName == "C" ||
             xmlNodeName == "S" ||
@@ -521,13 +525,13 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
                 else if(xmlNodeName == "Pr"){
                     counter++;
                     parsePR(xmlNode, parentNode, level);
-                }   
-            } 
+                }
+            }
 
         }
 
-    }   
-    
+    }
+
 
 
     //this function create new node from the xml node
@@ -555,11 +559,11 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
             newNode.oldLoadModuleID = newNode.loadModuleID;
 
 
-	        currentFileName = fileTable[newNode.fileID];	
+	        currentFileName = fileTable[newNode.fileID];
 
             // if(newNode.procedureID == 7104){
             //     fs.appendFileSync("problemNode", JSON.stringify(newNode) + "\n");
-            // }        
+            // }
     	}
     	if(type == "PR"){
     		newNode.aType = parseInt(xmlNode.attr('a').value());
@@ -569,13 +573,13 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
     		newNode.lineNumber = parseInt(xmlNode.attr('l').value());
         	// newNode.name = currentFileName + ": " + newNode.lineNumber;
         	// newNode.fileID = currentFileID;
-        	// newNode.procedureID = currentprocedureID;   
+        	// newNode.procedureID = currentprocedureID;
             if(parentNode.fileID != null){
                 newNode.fileID = parentNode.fileID;
-            }    
+            }
             else{
                 newNode.fileID = currentFileID;
-            }	
+            }
             if(parentNode.procedureID != null){
                 newNode.procedureID = parentNode.procedureID;
 
@@ -590,7 +594,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
     	if(type == "Loop"){
         	newNode.lineNumber = parseInt(xmlNode.attr('l').value());
             newNode.fileID = parseInt(xmlNode.attr('f').value());
-        	newNode.name = "Loop at " + fileTable[newNode.fileID] + ": " + newNode.lineNumber;  
+        	newNode.name = "Loop at " + fileTable[newNode.fileID] + ": " + newNode.lineNumber;
             if(parentNode.procedureID != null){
                 newNode.procedureID = parentNode.procedureID;
             }
@@ -598,9 +602,9 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
                 newNode.procedureID = currentprocedureID;
             }
 
-        	currentFileID = newNode.fileID; 
-        	// newNode.procedureID = currentprocedureID;	
-        	currentFileName = fileTable[newNode.fileID];	
+        	currentFileID = newNode.fileID;
+        	// newNode.procedureID = currentprocedureID;
+        	currentFileName = fileTable[newNode.fileID];
     	}
 
     	if(type == "Loop" || type == "Line"){
@@ -609,7 +613,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 	        }
 	        else{
 	            newNode.loadModuleID = currentLoadModID;
-	        } 
+	        }
 
             newNode.oldLoadModuleID = newNode.loadModuleID;
     	}
@@ -654,7 +658,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
             if(fileTable[node.fileID].includes("unknown file")){
                     specialID = "CLM" + node.loadModuleID + "-U";
                     type = "CLM";
-                    name = loadModuleTable[node.loadModuleID] + "-unknown";             
+                    name = loadModuleTable[node.loadModuleID] + "-unknown";
             }
 
             //first check by file
@@ -678,7 +682,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
                         if(splits.length == 1){ //we end up with a file name, so we will use the last porttion of the prefix
                             var prefixSplit = prefix.split('/');
-                            loadModName = prefixSplit[ prefixSplit.length - 2 ]; //skip the last one since it is after the / so 
+                            loadModName = prefixSplit[ prefixSplit.length - 2 ]; //skip the last one since it is after the / so
                         }
                         else{
                             loadModName = splits[0];
@@ -693,13 +697,13 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
                             }
                             specialID = "CLM" + splitLoadModuleFileID[node.loadModuleID][loadModName]["prefixID"];
                             type = "CLM";
-                            name = loadModName;  
+                            name = loadModName;
                             prefixLen = prefix.length;
-                            node.oldLoadModuleID = splitLoadModuleFileID[node.loadModuleID][loadModName]["newID"];                
+                            node.oldLoadModuleID = splitLoadModuleFileID[node.loadModuleID][loadModName]["newID"];
                     }
                 }
 
-            }); 
+            });
 
             /////////////////////////////////////
 
@@ -731,7 +735,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
             specialID = "LM" + node.loadModuleID;
             type = "LM";
             name = loadModuleTable[node.loadModuleID];
-        }   
+        }
 
         if(splitByParentList.indexOf(specialID) > -1){
 
@@ -750,7 +754,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         		nodePathID.some(function(nodeID){
         			// console.log(nodeID, node.nodeID);
 
-        			var parLMID = internalNodeList[ parseInt(nodeID) ].oldLoadModuleID;    			
+        			var parLMID = internalNodeList[ parseInt(nodeID) ].oldLoadModuleID;
         			if(parLMID != node.oldLoadModuleID){
         				specialID = "LM" + parLMID + "-" + "LM" + node.oldLoadModuleID;
         				type = "LM" + "-" + "LM";
@@ -758,7 +762,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         				return true;
         			}
         		})
-        	} 
+        	}
 
         }
 
@@ -773,7 +777,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         	"name" : name,
         	"specialID" : specialID,
         	"type" : type
-        }; 	
+        };
     }
 
     //this create new tree level if needed
@@ -782,7 +786,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 			nodeArray[level] = {};
 			sanKeyMetricDataLM[level] = {};
 			connectionInfo[level] = {};
-		}       	
+		}
     }
 
     //this create new node if needed for the final tree
@@ -798,7 +802,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
                 "type" : type,
                 "parentSpecialID" : [],
                 "level" : level,
-                "uniqueID" : [],         
+                "uniqueID" : [],
             };
 
             sanKeyIDLM += 1;
@@ -859,6 +863,9 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
                 functionList[node.specialID][node.procedureID] = [];
             }
             functionList[node.specialID][node.procedureID].push(node.nodeID);
+
+			nodeTypeInfo[node.nodeID] = {"Type": node.Type, "ParentLM" : parentNode["specialID"], "LM" : node["specialID"]};
+
         }
     }
 
@@ -896,7 +903,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
 
     // console.log("load module table", JSON.stringify(loadModuleTable));
     // console.log("load module table", JSON.stringify(splitLoadModuleFileID));
-    
+
 
 	var returnData = {
         "nodeArray" : nodeArray,
@@ -908,7 +915,7 @@ var fileLoader = function(xmlTree, fileName, callBack, configFileName, procIDArr
         "functionList" : functionList
 	};
 
-	callBack(returnData);    
+	callBack(returnData);
 }
 
 module.exports = fileLoader;

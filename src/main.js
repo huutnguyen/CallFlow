@@ -450,13 +450,26 @@ app.get('/getHistogramScatterData', function(req, res){
 	// })
 	tmpInc = tempInc;
 
-	// if (entryNodes.length == 0)
-	// {
-	// 	tmpInc = [];
-	// 	tempInc.forEach(function(val){
-	// 		tmpInc.push( val / uniqueNodeIDList.length );
-	// 	})
-	// }
+	if (entryNodes.length == 0)
+	{
+		tmpInc = [];
+		tempInc = [];
+		uniqueNodeIDList.forEach(function(nodeID, idx){
+			if (nodeTypeInfo[nodeID] != null && (nodeTypeInfo[nodeID].Type == "PR" || nodeTypeInfo[nodeID].Type == "PF") && (nodeTypeInfo[nodeID]["ParentLM"] != nodeTypeInfo[nodeID]["LM"]))
+			{
+				var incRuntime = nodeMetric[parseInt(nodeID)]["inc"];
+				if(idx == 0){
+					tempInc = incRuntime;
+				}
+				else{
+					tempInc = tempInc.SumArray( incRuntime );
+				}
+			}
+		});
+
+		tmpInc = tempInc;
+	}
+
 
 	var tmpExc = [];
 	// tempExc.forEach(function(val){
@@ -590,9 +603,12 @@ function computeHistogram(){
 	var specialIDs = Object.keys(sankeyNodes);
 	specialIDs.forEach(function(specialID){
 		var sankNode = sankeyNodes[specialID];
-		// var uniqueNodeIDList = sankNode["uniqueNodeID"];
-		var uniqueNodeIDList = sankNode["entryCCTNode"].length > 0 ? sankNode["entryCCTNode"] : sankNode["uniqueNodeID"];
+		var uniqueNodeIDList = sankNode["uniqueNodeID"];
+		// var uniqueNodeIDList = sankNode["entryCCTNode"].length > 0 ? sankNode["entryCCTNode"] : sankNode["uniqueNodeID"];
 		var tempInc = [];
+
+		var entryNodes = sankNode["entryCCTNode"];
+
 		//calculate runtime for this sank node
 		uniqueNodeIDList.forEach(function(nodeID, idx){
 			var incRuntime = nodeMetric[parseInt(nodeID)]["inc"];
@@ -603,6 +619,37 @@ function computeHistogram(){
 				tempInc = tempInc.SumArray( incRuntime );
 			}
 		});
+
+		if(entryNodes.length != 0)
+		{
+			tempInc = [];
+			entryNodes.forEach(function(nodeID, idx){
+				var incRuntime = nodeMetric[parseInt(nodeID)]["inc"];
+				if(idx == 0){
+					tempInc = incRuntime;
+				}
+				else{
+					tempInc = tempInc.SumArray( incRuntime );
+				}
+			})
+		}
+
+		if (entryNodes.length == 0)
+		{
+			tempInc = [];
+			uniqueNodeIDList.forEach(function(nodeID, idx){
+				if (nodeTypeInfo[nodeID] != null && (nodeTypeInfo[nodeID].Type == "PR" || nodeTypeInfo[nodeID].Type == "PF") && (nodeTypeInfo[nodeID]["ParentLM"] != nodeTypeInfo[nodeID]["LM"]))
+				{
+					var incRuntime = nodeMetric[parseInt(nodeID)]["inc"];
+					if(idx == 0){
+						tempInc = incRuntime;
+					}
+					else{
+						tempInc = tempInc.SumArray( incRuntime );
+					}
+				}
+			});
+		}
 
 		//This section will bin the data////
 
