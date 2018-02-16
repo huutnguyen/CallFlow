@@ -413,6 +413,7 @@ app.get('/getHistogramScatterData', function(req, res){
 	var node = sankeyData["nodes"][specialID];
 	var uniqueNodeIDList = node["uniqueNodeID"];
 
+	var entryNodes = node["entryCCTNode"];
 
 	var tempInc = [];
 	var tempExc = [];
@@ -429,15 +430,39 @@ app.get('/getHistogramScatterData', function(req, res){
 		}
 	});
 
+	if(entryNodes.length != 0)
+	{
+		tempInc = [];
+		entryNodes.forEach(function(nodeID, idx){
+			var incRuntime = nodeMetric[parseInt(nodeID)]["inc"];
+			if(idx == 0){
+				tempInc = incRuntime;
+			}
+			else{
+				tempInc = tempInc.SumArray( incRuntime );
+			}
+		})
+	}
+
 	var tmpInc = [];
-	tempInc.forEach(function(val){
-		tmpInc.push( val / uniqueNodeIDList.length );
-	})
+	// tempInc.forEach(function(val){
+	// 	tmpInc.push( val / uniqueNodeIDList.length );
+	// })
+	tmpInc = tempInc;
+
+	// if (entryNodes.length == 0)
+	// {
+	// 	tmpInc = [];
+	// 	tempInc.forEach(function(val){
+	// 		tmpInc.push( val / uniqueNodeIDList.length );
+	// 	})
+	// }
 
 	var tmpExc = [];
-	tempExc.forEach(function(val){
-		tmpExc.push( val / uniqueNodeIDList.length );
-	})
+	// tempExc.forEach(function(val){
+	// 	tmpExc.push( val / uniqueNodeIDList.length );
+	// })
+	tmpExc = tempExc;
 
 	res.json({"inc": tmpInc, "exc": tmpExc});
 })
@@ -565,7 +590,8 @@ function computeHistogram(){
 	var specialIDs = Object.keys(sankeyNodes);
 	specialIDs.forEach(function(specialID){
 		var sankNode = sankeyNodes[specialID];
-		var uniqueNodeIDList = sankNode["uniqueNodeID"];
+		// var uniqueNodeIDList = sankNode["uniqueNodeID"];
+		var uniqueNodeIDList = sankNode["entryCCTNode"].length > 0 ? sankNode["entryCCTNode"] : sankNode["uniqueNodeID"];
 		var tempInc = [];
 		//calculate runtime for this sank node
 		uniqueNodeIDList.forEach(function(nodeID, idx){
