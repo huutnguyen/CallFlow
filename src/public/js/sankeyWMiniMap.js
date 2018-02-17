@@ -1185,6 +1185,11 @@ function Sankey(args){
 		.style('fill', function(d){
 		    return d.color = setNodeColor(d);
 		})
+        d3.selectAll('.node text')
+        .style('fill', function(d){
+            var col = d.color;
+            return getTextColor(col);
+        })
 	}
 
 	if(nodeColorOption == 1){
