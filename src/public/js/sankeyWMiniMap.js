@@ -30,7 +30,7 @@ function Sankey(args){
 	maxNodeSize = args.maxNodeSize,
 	sankeySize = args.sankeySize;
 
-    
+
     this.colorScale = args.colorScale || d3.scale.category20();
     var width = containerWidth - margin.left - margin.right;
     var height = containerHeight - 2*margin.top - 2*margin.bottom;
@@ -65,7 +65,7 @@ function Sankey(args){
 
     var minHeightForText = 50;
     var textTruncForNode = 6;
-    
+
     data["links"].forEach(function(link){
 	if(link["sourceLabel"] == 'LM0' || parseInt(link["sourceLabel"]) == 0){
 	    rootRunTime += link["value"];
@@ -150,7 +150,7 @@ function Sankey(args){
     var graph2;
 
     var treeHeight = height < sankeySize ? height: sankeySize;
-    
+
     var minimapXScale = d3.scale.ordinal().domain(histogramData["globalXvals"]).rangeRoundBands([0, nodeWidth], 0.05);
     var minimapYScale = d3.scale.linear().domain([0, histogramData["maxFreq"]]).range([ySpacing - 5, 5]);
 
@@ -274,7 +274,7 @@ function Sankey(args){
 	    graph = graph_zero;
 	    currSankeySize = sankeySize;
 	}
-	
+
 	sankey.nodes(graph.nodes)
 	    .links(graph.links)
 	    .layout(32);
@@ -408,7 +408,7 @@ function Sankey(args){
 	    .attr("transform", function (d) {
 		return "translate(" + d.x + "," + d.y + ")";
 	    })
-	
+
 	// add the rectangles for the nodes
 	var rect = node.append("rect")
 	    .attr("height", function (d) {
@@ -1041,22 +1041,26 @@ function Sankey(args){
 		return 5;
 	    })
 	// .attr('y', '10px')
-	    .attr('y', "-10")
-	    .style('opacity', 0)
+	    // .attr('y', "-10")
+        .attr('y', -1 * sankey.nodeWidth() / 2 + "px")
+        .style('opacity', 0)
+        .style("font-family", "sans-serif")
+        .style("font-size", "25px")
+        .style('opacity', 0)
 	    .text(function (d) {
 	    	if(d.name != "intermediate"){
-	    	    if(d.dy < 30 ){
-	    		return "";
+	    	    if(d.dy < minHeightForText ){
+                    return "";
 	    	    }
 	    	    else{
-	    		var textSize = calcTextSize(d.name)["width"];
+    	    		var textSize = calcTextSize(d.name)["width"];
 
-	    		if(textSize < d.dy){
-	    		    return d.name;
-	    		}
-	    		else{
-	    		    return d.name.trunc(10);
-	    		}
+    	    		if(textSize < d.dy){
+    	    		    return d.name;
+    	    		}
+    	    		else{
+    	    		    return d.name.trunc(textTruncForNode);
+    	    		}
 	    	    }
 	    	}
 	    	else{
@@ -1114,7 +1118,7 @@ function Sankey(args){
 	    .duration(transitionDuration)
 	    .text(function (d) {
 	    	if(d.name != "intermediate"){
-	    	    if(d.dy < 30 ){
+	    	    if(d.dy < minHeightForText ){
 	    		return "";
 	    	    }
 	    	    else{
@@ -1124,7 +1128,7 @@ function Sankey(args){
 	    		    return d.name;
 	    		}
 	    		else{
-	    		    return d.name.trunc(10);
+	    		    return d.name.trunc(textTruncForNode);
 	    		}
 	    	    }
 	    	}
@@ -1269,7 +1273,7 @@ function Sankey(args){
 	toolTipData = newData["toolTipData"];
 	histogramData = newData["histogramData"];
 	sankeySize = newData["sankeySize"]
-	
+
 	secondGraphNodes = [];
 
 	data["nodes"].forEach(function(node){
@@ -1406,7 +1410,7 @@ function Sankey(args){
 	containerRect2.attr('height', treeHeight);
 
 	computeColorScale();
-	
+
 	visualize(true);
 	visualize2(true);
     }
@@ -1419,7 +1423,7 @@ function Sankey(args){
 	    containerHeight = size["height"];
 	    width = containerWidth - margin.left - margin.right;
 	    height = containerHeight - 2*margin.top - 2*margin.bottom;
-	    
+
 	    if(graph2){
 		treeHeight = height / 2;
 	    }
